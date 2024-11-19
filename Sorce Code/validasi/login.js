@@ -17,7 +17,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
 function validateLogin(email, password) {
   
   const validEmail = "panji@gmail.com";
-  const validPassword = "silit123";
+  const validPassword = "silit";
 
   
   return email === validEmail && password === validPassword;
