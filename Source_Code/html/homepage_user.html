@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage User</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <header class="bg-orange-600 text-white">
+    <div class="container mx-auto px-6 py-4 flex justify-between">
+      <h1 class="text-xl font-bold">HotelBooking</h1>
+      <a href="login.html" class="bg-white text-orange-600 px-4 py-2 rounded-lg">Logout</a>
+    </div>
+  </header>
+  <section class="py-12">
+    <div class="container mx-auto px-6">
+      <h3 class="text-2xl font-semibold text-gray-800 mb-6">Available Hotels</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hotel-container"></div>
+    </div>
+  </section>
+  <script>
+    fetch("../data/hotels.json")
+      .then((response) => response.json())
+      .then((hotels) => {
+        const container = document.querySelector(".hotel-container");
+        hotels.forEach((hotel) => {
+          container.innerHTML += `
+            <div class="bg-white rounded-lg shadow-lg p-6">
+              <img src="${hotel.image}" alt="${hotel.name}" class="rounded-md mb-4">
+              <h4 class="text-xl font-bold">${hotel.name}</h4>
+              <p>${hotel.description}</p>
+            </div>
+          `;
+        });
+      });
+  </script>
+</body>
+</html>

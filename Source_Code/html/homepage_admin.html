@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <header class="bg-orange-600 text-white">
+    <div class="container mx-auto px-6 py-4 flex justify-between">
+      <h1 class="text-xl font-bold">HotelBooking Admin</h1>
+      <a href="login.html" class="bg-white text-orange-600 px-4 py-2 rounded-lg">Logout</a>
+    </div>
+  </header>
+
+  <section class="py-12">
+    <div class="container mx-auto px-6">
+      <h3 class="text-2xl font-semibold text-gray-800 mb-6">Manage Hotels</h3>
+      <div class="mb-6">
+        <button onclick="showAddHotelForm()" class="bg-blue-600 text-white py-2 px-4 rounded-lg">Add New Hotel</button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hotel-container"></div>
+    </div>
+  </section>
+
+  <!-- Modal for adding/updating hotel -->
+  <div id="hotelModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+    <div class="bg-white p-8 rounded-lg w-96">
+      <h3 id="modalTitle" class="text-xl font-bold mb-4">Add New Hotel</h3>
+      <form id="hotelForm" class="space-y-4">
+        <div>
+          <label for="hotelName" class="block text-sm font-medium text-gray-700">Hotel Name</label>
+          <input type="text" id="hotelName" class="block w-full px-4 py-2 border rounded-lg" placeholder="Hotel Name" required>
+        </div>
+        <div>
+          <label for="hotelLocation" class="block text-sm font-medium text-gray-700">Location</label>
+          <input type="text" id="hotelLocation" class="block w-full px-4 py-2 border rounded-lg" placeholder="Location" required>
+        </div>
+        <div>
+          <label for="hotelDescription" class="block text-sm font-medium text-gray-700">Description</label>
+          <textarea id="hotelDescription" class="block w-full px-4 py-2 border rounded-lg" placeholder="Description" required></textarea>
+        </div>
+        <div>
+          <label for="hotelImage" class="block text-sm font-medium text-gray-700">Image URL</label>
+          <input type="text" id="hotelImage" class="block w-full px-4 py-2 border rounded-lg" placeholder="Image URL" required>
+        </div>
+        <div class="flex justify-between">
+          <button type="button" onclick="closeModal()" class="bg-gray-400 text-white py-2 px-4 rounded-lg">Cancel</button>
+          <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg" id="submitButton">Add Hotel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Fetch hotels data from hotels.json and display them
+    function loadHotels() {
+      fetch("../data/hotels.json")
+        .then((response) => response.json())
+        .then((hotels) => {
+          const container = document.querySelector(".hotel-container");
+          container.innerHTML = ''; // Clear previous content
+          hotels.forEach((hotel) => {
+            container.innerHTML += `
+              <div class="bg-white rounded-lg shadow-lg p-6">
+                <img src="${hotel.image}" alt="${hotel.name}" class="rounded-md mb-4">
+                <h4 class="text-xl font-bold">${hotel.name}</h4>
+                <p>${hotel.description}</p>
+                <p class="text-sm text-gray-600">Location: ${hotel.location}</p>
+                <div class="mt-4">
+                  <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg mr-2" onclick="editHotel(${hotel.id})">Edit</button>
+                  <button class="bg-red-600 text-white px-4 py-2 rounded-lg" onclick="deleteHotel(${hotel.id})">Delete</button>
+                </div>
+              </div>
+            `;
+          });
+        });
+    }
+
+    // Show modal to add a new hotel
+    function showAddHotelForm() {
+      document.getElementById('hotelModal').classList.remove('hidden');
+      document.getElementById('modalTitle').innerText = 'Add New Hotel';
+      document.getElementById('submitButton').innerText = 'Add Hotel';
+      document.getElementById('hotelForm').reset();
+    }
+
+    // Close the modal
+    function closeModal() {
+      document.getElementById('hotelModal').classList.add('hidden');
+    }
+
+    // Handle add/edit form submission
+    document.getElementById('hotelForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const hotelName = document.getElementById('hotelName').value;
+      const hotelLocation = document.getElementById('hotelLocation').value;
+      const hotelDescription = document.getElementById('hotelDescription').value;
+      const hotelImage = document.getElementById('hotelImage').value;
+
+      const hotelData = {
+        name: hotelName,
+        location: hotelLocation,
+        description: hotelDescription,
+        image: hotelImage
+      };
+
+      // Check if adding or editing hotel
+      const hotelId = document.getElementById('submitButton').dataset.hotelId;
+
+      if (hotelId) {
+        // Update hotel
+        updateHotel(hotelId, hotelData);
+      } else {
+        // Add new hotel
+        addHotel(hotelData);
+      }
+      closeModal();
+    });
+
+    // Add a new hotel
+    function addHotel(hotelData) {
+      fetch("../data/hotels.json")
+        .then((response) => response.json())
+        .then((hotels) => {
+          const newHotel = { id: hotels.length + 1, ...hotelData };
+          hotels.push(newHotel);
+          saveHotels(hotels);
+          loadHotels();
+        });
+    }
+
+    // Update an existing hotel
+    function updateHotel(id, updatedData) {
+      fetch("../data/hotels.json")
+        .then((response) => response.json())
+        .then((hotels) => {
+          const hotelIndex = hotels.findIndex(hotel => hotel.id === id);
+          if (hotelIndex !== -1) {
+            hotels[hotelIndex] = { ...hotels[hotelIndex], ...updatedData };
+            saveHotels(hotels);
+            loadHotels();
+          }
+        });
+    }
+
+    // Delete a hotel
+    function deleteHotel(id) {
+      fetch("../data/hotels.json")
+        .then((response) => response.json())
+        .then((hotels) => {
+          const updatedHotels = hotels.filter(hotel => hotel.id !== id);
+          saveHotels(updatedHotels);
+          loadHotels();
+        });
+    }
+
+    // Save hotels back to the JSON file
+    function saveHotels(hotels) {
+      // This step requires a server-side solution to save the updated JSON file.
+      // We will assume that the data is saved and reload the page.
+      console.log('Updated Hotels:', hotels);
+      loadHotels();
+    }
+
+    // Edit an existing hotel
+    function editHotel(id) {
+      fetch("../data/hotels.json")
+        .then((response) => response.json())
+        .then((hotels) => {
+          const hotel = hotels.find(hotel => hotel.id === id);
+          if (hotel) {
+            document.getElementById('hotelName').value = hotel.name;
+            document.getElementById('hotelLocation').value = hotel.location;
+            document.getElementById('hotelDescription').value = hotel.description;
+            document.getElementById('hotelImage').value = hotel.image;
+            document.getElementById('modalTitle').innerText = 'Edit Hotel';
+            document.getElementById('submitButton').innerText = 'Update Hotel';
+            document.getElementById('submitButton').dataset.hotelId = id;
+            document.getElementById('hotelModal').classList.remove('hidden');
+          }
+        });
+    }
+
+    // Load hotels when the page is loaded
+    window.onload = loadHotels;
+  </script>
+</body>
+</html>

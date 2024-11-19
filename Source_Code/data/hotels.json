@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Grand Luxury Hotel",
+    "location": "New York, USA",
+    "description": "Experience top-notch luxury and comfort in the heart of the city.",
+    "image": "../asset/hotel1.jpeg"
+  },
+  {
+    "id": 2,
+    "name": "Ocean Breeze Resort",
+    "location": "Bali, Indonesia",
+    "description": "Enjoy stunning ocean views and world-class amenities.",
+    "image": "../asset/hotel2.jpeg"
+  },
+  {
+    "id": 3,
+    "name": "Mountain Escape Lodge",
+    "location": "Aspen, USA",
+    "description": "A serene getaway surrounded by breathtaking mountain views.",
+    "image": "../asset/hotel3.jpg"
+  }
+]
